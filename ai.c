@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     Activation* act_softmax = activation_init("softmax", softmax, softmax_derivative);
     Activation* act_sigmoid = activation_init("sigmoid", sigmoid, sigmoid_derivative);
     SGD* sgd = sgd_init("SGD", 0.001, 0, 1);
-    const size_t BATCH_SIZE = 128;
+    const size_t BATCH_SIZE = 16;
 
     // if you are lucky it gets up to 60% accuracy, but it is 45-50% accurate most of the time.
     // which is terrible for a neural network, perhaps ive done something wrong in the implementation.
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     const size_t example_count = 60000;
     const size_t test_count = 10000;
     const size_t pixel_count = 784;
-    const size_t epochs = 200;
+    const size_t epochs = 300;
 
     Matrix* in = matrix_init(example_count, pixel_count);
     Matrix* test_in = matrix_init(test_count, pixel_count);
@@ -74,18 +74,7 @@ int main(int argc, char** argv)
     model_predict(m, test_in, prediction);
     for(size_t y = 0; y < test_count; ++y)
     {
-        size_t max_index = 0;
-        cell_t max_val = -1;
-        for(size_t x = 0; x < 10; ++x)
-        {
-            cell_t current = matrix_at(prediction, y, x);
-            if(current > max_val)
-            {
-                max_val = current;
-                max_index = x;
-            }
-        }
-        if(matrix_at(test_out, y, 0) - max_index < 0.1)
+        if(matrix_at(prediction, y, matrix_at(test_out, y, 0)) > 0.5)
         {
             ++accuracy;
         }
