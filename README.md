@@ -14,7 +14,7 @@ added a parameter to dense layers. I might update it in the future
 
 # FAQ
 ### What was your goal when creating this?
-I wanted to grasp how ANNs really worked, I've already wanted to implement something like this and Code Guessing \#57 provided a good opportunity for me to do so.
+I wanted to understand how ANNs really worked by implementing something like this. Code Guessing \#57 provided a good opportunity for me to do so.
 
 ### Why C?
 I wanted it to be more challenging.
