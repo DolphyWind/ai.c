@@ -1,5 +1,6 @@
 #include "dense.h"
 #include "activation.h"
+#include "dropout.h"
 #include "layer.h"
 #include "matrix.h"
 #include "util.h"
@@ -77,23 +78,25 @@ Matrix* dense_forward(Layer* dense)
         return dl->neurons;
     }
 
-    // DenseLayer* next = (DenseLayer*)layer_get_next_with_type(dense, DENSE);
-    DenseLayer* next = (DenseLayer*)dense->next;
+    Layer* next = dense->next;
 
-    Matrix* next_bef_act = next->base.get_before_activation_matrix((Layer*)next);
-    Matrix* next_neurons = next->base.get_neuron_matrix((Layer*)next);
+    Matrix* next_bef_act = next->get_before_activation_matrix((Layer*)next);
+    Matrix* next_neurons = next->get_neuron_matrix((Layer*)next);
     if(!next_bef_act || !next_neurons)
     {
         return NULL; // Should be unreachable but I added it just in case
     }
     
-    for(size_t y = 0; y < dl->neurons->rows; ++y)
+    if(!dense->is_predicting)
     {
-        for(size_t x = 0; x < dl->neurons->cols; ++x)
+        for(size_t y = 0; y < dl->neurons->rows; ++y)
         {
-            if(get_random_bounded(0, 1) < dl->dropout_probability)
+            for(size_t x = 0; x < dl->neurons->cols; ++x)
             {
-                matrix_set(dl->neurons, y, x, 0);
+                if(get_random_bounded(0, 1) < dl->dropout_probability)
+                {
+                    matrix_set(dl->neurons, y, x, 0);
+                }
             }
         }
     }

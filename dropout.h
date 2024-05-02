@@ -5,8 +5,10 @@
 #include "layer.h"
 typedef struct {
     Layer base;
+    Matrix* weights;
+    Matrix* biasses;
+    Matrix* before_activation;
     cell_t dropout_probability;
-    int is_predicting;
 } Dropout;
 
 void dropout_init_layer_neurons(Layer* l, size_t batch_size, int init_weights);

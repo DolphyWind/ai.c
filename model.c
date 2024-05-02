@@ -83,12 +83,12 @@ void model_print_info(Model* m, FILE* stream)
 
 void model_compile(Model* m, Optimizer* optimizer, lossfunc_t loss_func, lossfunc_t loss_derivative, size_t batch_size)
 {
-    Layer* current = m->first;
+    Layer* current = m->last;
     while(current)
     {
         current->init_layer_neurons(current, batch_size, 1);
         layer_set_optimizer(current, optimizer);
-        current = current->next;
+        current = current->prev;
     }
     m->batch_size = batch_size;
     m->loss_func = loss_func;
@@ -208,11 +208,7 @@ void model_update_before_predict(Model* m, int is_predicting)
     Layer* current = m->first;
     while(current)
     {
-        if(current->layer_type == DROPOUT)
-        {
-            Dropout* d = (Dropout*)current;
-            d->is_predicting = is_predicting;
-        }
+        current->is_predicting = is_predicting;
         current = current->next;
     }
 }

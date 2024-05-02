@@ -7,8 +7,8 @@
 
 typedef enum
 {
-    DENSE,
-    DROPOUT,
+    DENSE = 1,
+    DROPOUT = 2,
     COUNT
 } LayerType;
 
@@ -18,6 +18,7 @@ typedef struct Layer {
     Activation* activation;
     LayerType layer_type;
     Optimizer* optimizer;
+    int is_predicting;
 
     Matrix*(*forward_pass)(struct Layer*);
     void(*backward_pass)(struct Layer*, Matrix*);

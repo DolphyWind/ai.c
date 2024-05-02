@@ -1,11 +1,23 @@
 // Unused because they won't work with the current design. Insted, I've added dropout_probability parameter to dense layers
 #include "dropout.h"
+#include "layer.h"
 #include "matrix.h"
 #include "util.h"
 #include <assert.h>
 
 void dropout_init_layer_neurons(Layer* l, size_t batch_size, int init_weights)
 {
+    Dropout* d = (Dropout*)l;
+    Layer* next = l->next;
+    assert(next);
+
+    Matrix* next_weights = next->get_weight_matrix(next);
+    Matrix* next_biasses = next->get_bias_matrix(next);
+    assert(next_biasses && next_weights);
+
+    d->weights = matrix_init(next_weights->rows, next_weights->cols);
+    d->before_activation = matrix_init(next_weights->rows, next_weights->cols);
+    d->biasses = matrix_init(next_biasses->rows, next_biasses->cols);
 }
 
 Dropout* dropout_init(Layer* prev, Layer* next, cell_t dropout_probability)
@@ -35,22 +47,28 @@ void dropout_free(Layer* dropout)
 
 Matrix* dropout_forward(Layer* dropout)
 {
-    Dropout* d = (Dropout*)dropout;
-    Matrix* next_before_activaton = dropout->next->get_before_activation_matrix(dropout->next);
+    if(dropout->is_predicting) return NULL;
 
-    if(d->is_predicting) return next_before_activaton;
-    
-    for(size_t y = 0; y < next_before_activaton->rows; ++y)
+    Dropout* d = (Dropout*)dropout;
+    Layer* next = dropout->next;
+    Matrix* next_weights = next->get_weight_matrix(next);
+    Matrix* weights = dropout->get_weight_matrix(dropout);
+
+    for(size_t y = 0; y < weights->rows; ++y)
     {
-        for(size_t x = 0; x < next_before_activaton->cols; ++x)
+        for(size_t x = 0; x < weights->cols; ++x)
         {
-            if(get_random_bounded(0.0, 1.0) < d->dropout_probability)
+            if(get_random_bounded(0, 1) < d->dropout_probability)
             {
-                matrix_set(next_before_activaton, y, x, 0);
+                matrix_set(next_weights, y, x, 0);
+            }
+            else
+            {
+                matrix_set(next_weights, y, x, matrix_at(weights, y, x));
             }
         }
     }
-    return next_before_activaton;
+    return NULL;
 }
 
 void dropout_backward(Layer* dropout, Matrix* gradient)
@@ -72,15 +90,18 @@ Matrix* dropout_get_neuron_matrix(Layer* layer)
 
 Matrix* dropout_get_weight_matrix(Layer* layer)
 {
-    return NULL;
+    Dropout* d = (Dropout*)layer;
+    return d->weights;
 }
 
 Matrix* dropout_get_bias_matrix(Layer* layer)
 {
-    return NULL;
+    Dropout* d = (Dropout*)layer;
+    return d->biasses;
 }
 
 Matrix* dropout_get_before_activation_matrix(Layer* layer)
 {
-    return NULL;
+    Dropout* d = (Dropout*)layer;
+    return d->before_activation;
 }

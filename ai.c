@@ -2,6 +2,7 @@
 #include <time.h>
 #include <math.h>
 #include "activation.h"
+#include "layer.h"
 #include "loss.h"
 #include "matrix.h"
 #include "model.h"
@@ -17,23 +18,26 @@ int main(int argc, char** argv)
     Activation* act_softmax = activation_init("softmax", softmax, softmax_derivative);
     Activation* act_sigmoid = activation_init("sigmoid", sigmoid, sigmoid_derivative);
     SGD* sgd = sgd_init("SGD", 0.001, 0, 1);
+    const size_t example_count = 60000;
+    const size_t test_count = 10000;
+    const size_t pixel_count = 784;
+    const size_t epochs = 100;
     const size_t BATCH_SIZE = 128;
 
     // if you are lucky it gets up to 60% accuracy, but it is 45-50% accurate most of the time.
     // which is terrible for a neural network, perhaps ive done something wrong in the implementation.
     // it somehow got 85% accuracy once.
+    //
+    // Update: I've updated some things and it gets about 65% accuracy.
+    // It got to 91% once
     Model* m = model_init();
     model_add_dense(m, 784, act_relu, 0.33);
+    // model_add_dropout(m, 0.33);
     model_add_dense(m, 128, act_relu, 0.33);
     model_add_dense(m, 64, act_softmax, 0);
     model_add_dense(m, 10, act_id, 0);
     model_compile(m, (Optimizer*)sgd, mse, mse_derivative, BATCH_SIZE);
     
-    const size_t example_count = 60000;
-    const size_t test_count = 10000;
-    const size_t pixel_count = 784;
-    const size_t epochs = 200;
-
     Matrix* in = matrix_init(example_count, pixel_count);
     Matrix* test_in = matrix_init(test_count, pixel_count);
     Matrix* out = matrix_init(example_count, 1);
