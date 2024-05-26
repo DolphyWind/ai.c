@@ -21,7 +21,7 @@ int main(int argc, char** argv)
     const size_t example_count = 60000;
     const size_t test_count = 10000;
     const size_t pixel_count = 784;
-    const size_t epochs = 100;
+    const size_t epochs = 200;
     const size_t BATCH_SIZE = 128;
 
     // if you are lucky it gets up to 60% accuracy, but it is 45-50% accurate most of the time.
@@ -30,6 +30,8 @@ int main(int argc, char** argv)
     //
     // Update: I've updated some things and it gets about 65% accuracy.
     // It got to 91% once
+    //
+    // Update 2: After fixing my dumb mistake it learns the MNIST dataset pretty well
     Model* m = model_init();
     model_add_dense(m, 784, act_relu, 0.33);
     // model_add_dropout(m, 0.33);
@@ -62,7 +64,7 @@ int main(int argc, char** argv)
         fscanf(mnist_test, "%lf", matrix_atp(test_out, y, 0));
         for(size_t x = 0; x < pixel_count; ++x)
         {
-            fscanf(mnist, "%lf", matrix_atp(test_in, y, x));
+            fscanf(mnist_test, "%lf", matrix_atp(test_in, y, x));
             *matrix_atp(test_in, y, x) /= 255.0;
         }
     }
