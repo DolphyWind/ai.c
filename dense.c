@@ -25,7 +25,8 @@ void dense_init_layer_neurons(Layer* l, size_t batch_size, int init_weights)
 
     size_t D = next->neuron_count;
 
-    cell_t factor = sqrt(3.0 / C);
+    cell_t factor = sqrt(6.0 / C);
+    /* this->weights = matrix_initru(C, D, factor); */
     this->weights = matrix_initrf(C, D, 1);
     this->biasses = matrix_initn(1, D, 0);
 }

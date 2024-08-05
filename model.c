@@ -154,30 +154,58 @@ void model_fit(Model* m, Matrix* inputs, Matrix* outputs, size_t epochs)
     Matrix* batch = matrix_init(batch_size, inputs->cols);
     Matrix* batch_outputs = matrix_init(batch_size, outputs->cols);
     Matrix* loss_matrix = matrix_init(batch_size, 1);
+
     Matrix* gradients = matrix_initn(batch_size, outputs->cols, 1);
-    size_t* indices = malloc(sizeof(size_t) * batch_size);
+
+    size_t input_size = inputs->rows;
+    size_t indices_array_size = input_size;
+
+    if(input_size % batch_size != 0)
+    {
+        indices_array_size = (input_size / batch_size + 1) * batch_size;
+    }
+
+    size_t* indices = malloc(sizeof(size_t) * indices_array_size);
+    for(size_t i = 0; i < input_size; ++i)
+    {
+        indices[i] = i;
+    }
+    shuffle(indices, input_size);
+
+    for(size_t i = input_size; i < indices_array_size; ++i)
+    {
+        indices[i] = rand() % input_size;
+    }
+
+    size_t steps = indices_array_size / batch_size;
 
     for(size_t i = 0; i < epochs; ++i)
     {
         printf("Epoch: %zu ", i + 1);
-        choose_n_indices(batch_size, inputs->rows, indices);
+        fflush(stdout);
 
-        for(size_t i = 0; i < batch_size; ++i)
+        cell_t mean_loss = 0;
+        
+        for (size_t j = 0; j < steps; ++j)
         {
-            size_t row = indices[i];
-            
-            matrix_copy_row(batch, inputs, i, row);
-            matrix_copy_row(batch_outputs, outputs, i, row);
+            for(size_t k = 0; k < batch_size; ++k)
+            {
+                size_t row = indices[j * batch_size + k];
+                
+                matrix_copy_row(batch, inputs, k, row);
+                matrix_copy_row(batch_outputs, outputs, k, row);
+            }
+            Matrix* predictions = __model_predict(m, batch);
+
+            m->loss_func(predictions, batch_outputs, loss_matrix);
+            mean_loss = matrix_col_mean(loss_matrix, 0);
+            m->loss_func_derivative(predictions, batch_outputs, gradients);
+            m->last->backward_pass(m->last, gradients);
+            printf("\rEpoch: %zu. [%zu/%zu] Average loss: %lf       ", i + 1, j + 1, steps, mean_loss);
+            fflush(stdout);
         }
-
-        Matrix* predictions = __model_predict(m, batch);
-
-        m->loss_func(predictions, batch_outputs, loss_matrix);
-        cell_t mean_loss = matrix_col_mean(loss_matrix, 0);
-        printf("Average loss: %lf\n", mean_loss);
-
-        m->loss_func_derivative(predictions, batch_outputs, gradients);
-        m->last->backward_pass(m->last, gradients);
+        
+        printf("\n");
     }
     matrix_free(batch);
     matrix_free(batch_outputs);

@@ -53,6 +53,20 @@ Matrix* matrix_initrf(size_t rows, size_t cols, cell_t f)
     return matrix;
 }
 
+Matrix* matrix_initru(size_t rows, size_t cols, cell_t f)
+{
+    Matrix* matrix = matrix_init(rows, cols);
+    for(size_t y = 0; y < rows; ++y)
+    {
+        for(size_t x = 0; x < cols; ++x)
+        {
+            matrix_set(matrix, y, x, get_random() * 2 * f - f);
+        }
+    }
+
+    return matrix;
+}
+
 void matrix_copy(Matrix* dest, Matrix* src)
 {
     assert(dest->cols == src->cols && dest->rows == src->rows);

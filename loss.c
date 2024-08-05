@@ -51,7 +51,8 @@ void cross_entropy(Matrix* preds, Matrix* target, Matrix* out)
         {
             cell_t pred = matrix_at(preds, y, x);
             cell_t true_lbl = matrix_at(target, y, x);
-            loss += true_lbl * log(pred + epsilon);
+            pred = clamp(pred, epsilon, 1 - epsilon);
+            loss += true_lbl * log(pred) + (1 - true_lbl) * log(1 - pred);
         }
         matrix_set(out, y, 0, -loss / batch_size);
     }
@@ -72,7 +73,7 @@ void cross_entropy_derivative(Matrix* preds, Matrix* targets, Matrix* out)
             cell_t pred = matrix_at(preds, y, x);
             cell_t true_lbl = matrix_at(targets, y, x);
             pred = clamp(pred, epsilon, 1 - epsilon);
-            matrix_set(out, y, x, -1.0 * (true_lbl / pred) );
+            matrix_set(out, y, x, -(true_lbl / pred) + ((1 - true_lbl) / (1 - pred)) );
         }
     }
 }

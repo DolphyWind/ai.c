@@ -19,6 +19,19 @@ void choose_n_indices(size_t n, size_t max_index, size_t* out)
     }
 }
 
+void shuffle(size_t* arr, size_t size)
+{
+    if (size <= 1) return;
+
+    for (size_t i = 0; i < size - 1; i++)
+    {
+        size_t j = i + rand() / (RAND_MAX / (size - i) + 1);
+        size_t temp = arr[j];
+        arr[j] = arr[i];
+        arr[i] = temp;
+    }
+}
+
 cell_t clamp(cell_t in, cell_t min, cell_t max)
 {
     if(in > max) return max;

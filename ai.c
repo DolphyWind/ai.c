@@ -17,11 +17,11 @@ int main(int argc, char** argv)
     Activation* act_relu = activation_init("relu", relu, relu_derivative);
     Activation* act_softmax = activation_init("softmax", softmax, softmax_derivative);
     Activation* act_sigmoid = activation_init("sigmoid", sigmoid, sigmoid_derivative);
-    SGD* sgd = sgd_init("SGD", 0.001, 0, 1);
+    SGD* sgd = sgd_init("SGD", 0.0001, 0, 1);
     const size_t example_count = 60000;
     const size_t test_count = 10000;
     const size_t pixel_count = 784;
-    const size_t epochs = 200;
+    const size_t epochs = 3;
     const size_t BATCH_SIZE = 128;
 
     // if you are lucky it gets up to 60% accuracy, but it is 45-50% accurate most of the time.

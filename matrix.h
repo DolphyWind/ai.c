@@ -16,6 +16,7 @@ Matrix* matrix_init(size_t rows, size_t cols);
 Matrix* matrix_initn(size_t rows, size_t cols, cell_t n);
 Matrix* matrix_initr(size_t rows, size_t cols);
 Matrix* matrix_initrf(size_t rows, size_t cols, cell_t f);
+Matrix* matrix_initru(size_t rows, size_t cols, cell_t f);
 void matrix_copy(Matrix* dest, Matrix* src);
 void matrix_free(Matrix* ptr);
 cell_t matrix_at(Matrix* m, size_t row, size_t col);
