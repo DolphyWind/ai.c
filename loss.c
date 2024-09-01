@@ -22,7 +22,7 @@ void mse(Matrix* preds, Matrix* target, Matrix* out)
             sum += current * current;
         }
 
-        matrix_set(out, y, 0, sum / (cols * 2));
+        matrix_set(out, y, 0, sum / rows);
     }
 
     matrix_free(differences);
@@ -33,7 +33,7 @@ void mse_derivative(Matrix* preds, Matrix* target, Matrix* out)
     assert(preds->cols == out->cols && preds->rows == out->rows);
     
     matrix_sub_matrix(target, preds, out);
-    matrix_scale(out, -2.0 / preds->cols);
+    matrix_scale(out, -2.0 / preds->rows);
 }
 
 void cross_entropy(Matrix* preds, Matrix* target, Matrix* out)
